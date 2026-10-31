@@ -1,6 +1,6 @@
-# Home SOC Lab: Active Directory + Wazuh SIEM
+# Home SOC Lab: Active Directory + Wazuh + Splunk
 
-A home Security Operations Center (SOC) lab built in VMware Workstation Pro to practice detection, log analysis, and alert triage. It has an isolated network behind a pfSense firewall, a Windows Active Directory domain, a Windows 11 endpoint with Sysmon, and a Wazuh SIEM that collects and alerts on logs from every machine.
+A home Security Operations Center (SOC) lab built in VMware Workstation Pro to practice detection, log analysis, and alert triage. It has an isolated network behind a pfSense firewall, a Windows Active Directory domain, a Windows 11 endpoint with Sysmon, and two SIEMs: Wazuh, which collects and alerts on logs from every machine, and Splunk, used to search the same Windows events with SPL.
 
 **Built:** October 2026 · **Author:** Daniel Deisrael · Cybersecurity & Information Assurance student, Western Governors University
 
@@ -9,9 +9,9 @@ A home Security Operations Center (SOC) lab built in VMware Workstation Pro to p
 - **Networking:** isolated lab network, pfSense firewall, DHCP, static IP planning, DNS forwarding and reverse zones
 - **Active Directory:** domain setup, OUs and users, domain join, Group Policy, Advanced Audit Policy
 - **Endpoint telemetry:** Sysmon with a community configuration, PowerShell script block logging
-- **SIEM:** Wazuh all-in-one install, Windows agent deployment, custom log collection, real-time File Integrity Monitoring, threat hunting queries
+- **SIEM:** Wazuh all-in-one install, Windows agent deployment, custom log collection, real-time File Integrity Monitoring, threat hunting queries; Splunk Enterprise with Universal Forwarders and SPL searches (stats, eval, mvindex, table)
 - **SOC analysis:** alert triage, Windows event IDs, SID interpretation, ticket writing
-- **Troubleshooting:** 12+ real problems diagnosed and fixed during the build (see [docs/troubleshooting.md](docs/troubleshooting.md))
+- **Troubleshooting:** 19 real problems diagnosed and fixed during the build (see [docs/troubleshooting.md](docs/troubleshooting.md))
 
 ## Network diagram
 
@@ -25,25 +25,29 @@ flowchart LR
         fw --- srv["Azure-Entra01<br/>Member server<br/>10.0.0.30"]
         fw --- ws["WS001<br/>Windows 11 + Sysmon<br/>10.0.0.105"]
         fw --- kali["Kali Purple<br/>10.0.0.108"]
+        fw --- spl["SPLUNK001<br/>Splunk Enterprise<br/>10.0.0.25"]
     end
     dc -. "Wazuh agent · 1514/tcp" .-> siem
     ws -. "Wazuh agent · 1514/tcp" .-> siem
+    dc -. "Splunk forwarder · 9997/tcp" .-> spl
+    ws -. "Splunk forwarder · 9997/tcp" .-> spl
 ```
 
 Also available as an image: [docs/network-diagram.png](docs/network-diagram.png)
 
 ## Virtual machines
 
-| VM | OS / software | IP | Role | Logs to Wazuh |
+| VM | OS / software | IP | Role | Sends logs to |
 | --- | --- | --- | --- | --- |
 | FW01 | pfSense CE | 10.0.0.1 (LAN), NAT (WAN) | Firewall, router, DHCP | Planned (syslog) |
-| DC001 | Windows Server 2025 | 10.0.0.10 | Domain controller and DNS for `BuildBetter.digital` | Yes: Security log with advanced auditing |
+| DC001 | Windows Server 2025 | 10.0.0.10 | Domain controller and DNS for `BuildBetter.digital` | Wazuh and Splunk: Security log with advanced auditing |
 | SIEM001 | Ubuntu Server + Wazuh 4.14 | 10.0.0.20 | SIEM: indexer, server, dashboard | Server |
+| SPLUNK001 | Ubuntu Server + Splunk Enterprise 10.6 | 10.0.0.25 | SIEM: receives forwarder data on 9997, search on 8000 | Server |
 | Azure-Entra01 | Windows Server | 10.0.0.30 | Domain member server | Planned |
-| WS001 | Windows 11 Enterprise | 10.0.0.105 (DHCP) | Domain workstation | Yes: Security, Sysmon, PowerShell |
+| WS001 | Windows 11 Enterprise | 10.0.0.105 (DHCP) | Domain workstation | Wazuh (Security, Sysmon, PowerShell) and Splunk (Security, System, Application, Sysmon) |
 | Kali | Kali Purple | 10.0.0.108 (DHCP) | Outside machine on the lab network | No, by design |
 
-The lab runs on one laptop with 32 GB RAM, usually 4 VMs at a time (FW01, DC001, SIEM001, WS001).
+The lab runs on one laptop with 32 GB RAM, usually 4 VMs at a time (FW01, DC001, WS001, plus either SIEM001 or SPLUNK001).
 
 ## Detections and tickets
 
