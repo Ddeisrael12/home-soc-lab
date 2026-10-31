@@ -17,7 +17,7 @@
 | 00:43:31 | (see alert) | 60110 (level 8) | User account changed (password set, enabled) |
 | 00:47:07 | 4728 | 60148 (level 5) | Security-enabled global group changed |
 | 00:47:07 | 4728 | **60159 (level 12)** | **Member added to Domain Admins** |
-| ~01:05 | 4729 | | Member removed from Domain Admins (cleanup; confirm the event in Wazuh) |
+| 01:04:50 | 4729 | | Test Admin and Test Admin 3 removed from Domain Admins in one command (cleanup; confirmed in Splunk) |
 
 ## Evidence
 
@@ -47,6 +47,24 @@ In a real environment: look for a matching change request, or confirm with the a
   Get-ADGroupMember "Domain Admins" | Select-Object SamAccountName
   ```
 - Recommendation: admins should use named privileged accounts instead of the built-in Administrator, so every action is traceable.
+
+## Confirmed in a second SIEM (Splunk)
+
+The same events were later found in Splunk after a Universal Forwarder was installed on DC001:
+
+```
+index=* host=DC001 EventCode=4728
+| table _time, Group_Name, Account_Name
+```
+
+```
+index=* host=DC001 EventCode=4729
+| table _time, Group_Name, Account_Name
+```
+
+The first test account (Test Admin, added to Domain Admins on 2026-10-24) has **no 4728 event**, because account management auditing was off at the time. Its **removal** on 2026-10-28 (4729) was logged, because auditing had been fixed by then. A SIEM can only see what the systems actually log.
+
+The 4728 history also showed a service account, **proAgent gMSA**, added to Domain Admins on 2026-09-19. A service account with full domain rights breaks least privilege and should be reviewed.
 
 ## Root cause found along the way
 

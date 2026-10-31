@@ -2,14 +2,14 @@
 
 A home Security Operations Center (SOC) lab built in VMware Workstation Pro to practice detection, log analysis, and alert triage. It has an isolated network behind a pfSense firewall, a Windows Active Directory domain, a Windows 11 endpoint with Sysmon, and a Wazuh SIEM that collects and alerts on logs from every machine.
 
-**Built:** October 2026 · **Author:** Immaculate T. Tabi · Cybersecurity & Information Assurance student, Western Governors University
+**Built:** October 2026 · **Author:** Daniel Deisrael · Cybersecurity & Information Assurance student, Western Governors University
 
 ## Skills demonstrated
 
 - **Networking:** isolated lab network, pfSense firewall, DHCP, static IP planning, DNS forwarding and reverse zones
 - **Active Directory:** domain setup, OUs and users, domain join, Group Policy, Advanced Audit Policy
 - **Endpoint telemetry:** Sysmon with a community configuration, PowerShell script block logging
-- **SIEM:** Wazuh all-in-one install, Windows agent deployment, custom log collection, threat hunting queries
+- **SIEM:** Wazuh all-in-one install, Windows agent deployment, custom log collection, real-time File Integrity Monitoring, threat hunting queries
 - **SOC analysis:** alert triage, Windows event IDs, SID interpretation, ticket writing
 - **Troubleshooting:** 12+ real problems diagnosed and fixed during the build (see [docs/troubleshooting.md](docs/troubleshooting.md))
 
@@ -51,7 +51,8 @@ The lab runs on one laptop with 32 GB RAM, usually 4 VMs at a time (FW01, DC001,
 | --- | --- | --- | --- | --- |
 | 1 | [Executable dropped in folder used by malware (92213)](tickets/01-edge-dll-in-temp.md) | 15 | WS001 | False positive: browser component update |
 | 2 | [Domain Admins group changed (60159)](tickets/02-domain-admins-change.md) | 12 | DC001 | Authorized change (lab test), reverted |
-| 3 | [Failed logons and account lockout (4625 / 4740)](tickets/03-account-lockout.md) | In progress | DC001 | In progress |
+| 3 | [User account locked out (60115)](tickets/03-account-lockout.md) | 9 | DC001 | Benign: lab test, account unlocked |
+| 4 | [Sensitive file modified in Finance folder (550 / 554 / 553)](tickets/04-file-integrity-finance.md) | 7 | WS001 | Benign: lab test (FIM caught add, edit, and delete) |
 
 ## Build notes
 
