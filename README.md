@@ -10,7 +10,7 @@ A home Security Operations Center (SOC) lab built in VMware Workstation Pro to p
 - **Active Directory:** domain setup, OUs and users, domain join, Group Policy, Advanced Audit Policy
 - **Endpoint telemetry:** Sysmon with a community configuration, PowerShell script block logging
 - **SIEM:** Wazuh all-in-one install, Windows agent deployment, custom log collection, real-time File Integrity Monitoring, threat hunting queries; Splunk Enterprise with Universal Forwarders and SPL searches (stats, eval, mvindex, table)
-- **SOC analysis:** alert triage, Windows event IDs, SID interpretation, ticket writing
+- **SOC analysis:** alert triage, threat hunting, process baselining, Windows event IDs, SID interpretation, MITRE ATT&CK mapping, ticket writing
 - **Troubleshooting:** 19 real problems diagnosed and fixed during the build (see [docs/troubleshooting.md](docs/troubleshooting.md))
 
 ## Network diagram
@@ -57,6 +57,7 @@ The lab runs on one laptop with 32 GB RAM, usually 4 VMs at a time (FW01, DC001,
 | 2 | [Domain Admins group changed (60159)](tickets/02-domain-admins-change.md) | 12 | DC001 | Authorized change (lab test), reverted |
 | 3 | [User account locked out (60115)](tickets/03-account-lockout.md) | 9 | DC001 | Benign: lab test, account unlocked |
 | 4 | [Sensitive file modified in Finance folder (550 / 554 / 553)](tickets/04-file-integrity-finance.md) | 7 | WS001 | Benign: lab test (FIM caught add, edit, and delete) |
+| 5 | [Threat hunt: built-in admin tools (auditpol, wevtutil, secedit)](tickets/05-threat-hunt-lolbins.md) | Hunt | WS001 | No malicious activity: Wazuh SCA checks and a Defender update |
 
 ## Build notes
 
